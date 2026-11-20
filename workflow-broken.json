@@ -34,7 +34,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://webhook.site/REPLACE-WITH-YOUR-TOKEN",
+        "url": "https://webhook.site/6350ae89-92d3-4fb3-9783-747e78d18a39",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}",
