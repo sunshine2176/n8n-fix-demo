@@ -1,0 +1,9 @@
+{
+  "orderId": "SO-10241",
+  "customer": { "id": "C-772", "name": "Acme Corp" },
+  "items": [
+    { "sku": "WID-100", "qty": 2 },
+    { "sku": "BRK-40", "qty": 1 }
+  ],
+  "total": "49.90"
+}

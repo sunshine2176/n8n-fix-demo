@@ -1,0 +1,81 @@
+{
+  "name": "Order Sync Webhook — BROKEN (demo fixture)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-sync",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-1111-4aaa-8bbb-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "demo-order-sync"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform upstream order payload for the downstream CRM API.\n// NOTE: this node contains two intentional bugs (demo fixture).\nconst payload = $input.first().json.body;\n\n// BUG 1 — type mismatch: upstream sends `total` as a STRING (\"49.90\"),\n// this code assumes a number. Throws TypeError at runtime.\nconst total = payload.total.toFixed(2);\n\n// BUG 2 — wrong mapping: upstream nests the id at payload.customer.id.\n// This line reads a field that does not exist, so customerId becomes null\n// and the downstream API receives an incomplete record.\nconst customerId = payload.customer_id;\n\nconst itemCount = payload.items.length;\n\nreturn [\n  {\n    json: {\n      customerId,\n      itemCount,\n      total,\n      status: 'processed'\n    }\n  }\n];"
+      },
+      "id": "a1b2c3d4-2222-4aaa-8bbb-000000000002",
+      "name": "Transform Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/REPLACE-WITH-YOUR-TOKEN",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-3333-4aaa-8bbb-000000000003",
+      "name": "Send to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Transform Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Payload": {
+      "main": [
+        [
+          {
+            "node": "Send to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
